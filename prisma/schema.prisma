@@ -1,0 +1,98 @@
+// Para trocar para PostgreSQL no deploy: provider = "postgresql" e DATABASE_URL do Neon/Supabase.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Obra {
+  id       String   @id @default(cuid())
+  nome     String   @unique
+  endereco String?
+  criadoEm DateTime @default(now())
+  listas   Lista[]
+}
+
+/// status: ABERTA | COMPRADA | CANCELADA (validado no app)
+model Lista {
+  id         String       @id @default(cuid())
+  obraId     String?
+  obra       Obra?        @relation(fields: [obraId], references: [id], onDelete: SetNull)
+  nome       String
+  status     String       @default("ABERTA")
+  observacao String?
+  criadoEm   DateTime     @default(now())
+  itens      ItemPedido[]
+  orcamentos Orcamento[]
+}
+
+model ItemPedido {
+  id         String       @id @default(cuid())
+  listaId    String
+  lista      Lista        @relation(fields: [listaId], references: [id], onDelete: Cascade)
+  ordem      Int
+  descricao  String
+  quantidade Decimal
+  unidade    String
+  cotados    ItemCotado[]
+
+  @@index([listaId])
+}
+
+model Fornecedor {
+  id         String      @id @default(cuid())
+  nome       String      @unique
+  telefone   String?
+  whatsapp   String?
+  email      String?
+  cnpj       String?
+  observacao String?
+  orcamentos Orcamento[]
+}
+
+model Orcamento {
+  id                String       @id @default(cuid())
+  listaId           String
+  lista             Lista        @relation(fields: [listaId], references: [id], onDelete: Cascade)
+  fornecedorId      String
+  fornecedor        Fornecedor   @relation(fields: [fornecedorId], references: [id], onDelete: Restrict)
+  numero            String?
+  data              DateTime
+  validade          DateTime?
+  frete             Decimal      @default(0)
+  desconto          Decimal      @default(0)
+  condicaoPagamento String?
+  prazoEntrega      String?
+  emNomeDe          String?
+  observacao        String?
+  anexo             String?
+  /// total impresso no orçamento original (só para conferir a digitação)
+  totalOriginal     Decimal?
+  criadoEm          DateTime     @default(now())
+  itens             ItemCotado[]
+
+  @@index([listaId])
+  @@index([fornecedorId])
+}
+
+/// conferencia: CONFERE | CONFIRMAR | DIVERGENTE (validado no app)
+model ItemCotado {
+  id              String     @id @default(cuid())
+  orcamentoId     String
+  orcamento       Orcamento  @relation(fields: [orcamentoId], references: [id], onDelete: Cascade)
+  itemPedidoId    String
+  itemPedido      ItemPedido @relation(fields: [itemPedidoId], references: [id], onDelete: Cascade)
+  descricaoCotada String
+  quantidade      Decimal
+  unidade         String
+  valorUnitario   Decimal
+  /// quanto o item cotado rende na unidade pedida (ex.: 1 sc = 40 kg → 40). Usado no preço por unidade pedida.
+  qtdEquivalente  Decimal?
+  conferencia     String     @default("CONFERE")
+  observacao      String?
+
+  @@unique([orcamentoId, itemPedidoId])
+}
