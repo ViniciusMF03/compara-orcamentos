@@ -7,7 +7,7 @@ const data = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit"
 /** R$ 1.234,56 (com espaço normal, não o espaço especial do Intl) */
 export function formatarMoeda(v: number | null | undefined): string {
   if (v === null || v === undefined || Number.isNaN(v)) return "—";
-  return moeda.format(v).replace(/ /g, " ");
+  return moeda.format(v + 0).replace(/ /g, " "); // + 0 evita "-R$ 0,00"
 }
 
 const moedaUnitaria = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 4 });
