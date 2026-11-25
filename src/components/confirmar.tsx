@@ -23,7 +23,7 @@ export function Confirmar({
   titulo: string;
   descricao: React.ReactNode;
   textoConfirmar?: string;
-  onConfirmar: () => void | Promise<void>;
+  onConfirmar: () => unknown;
   children: React.ReactNode;
 }) {
   return (
