@@ -97,7 +97,8 @@ export function precoPorUnidadePedida(
   if (cotado.qtdEquivalente && cotado.qtdEquivalente > 0) qtdNaUnidadePedida = cotado.qtdEquivalente;
   else if (normalizarUnidade(pedido.unidade) === normalizarUnidade(cotado.unidade)) qtdNaUnidadePedida = cotado.quantidade;
   if (!qtdNaUnidadePedida) return null;
-  return arred(total / qtdNaUnidadePedida);
+  // 4 casas: preço por unidade costuma ter centavos fracionados (R$ 0,1192/un)
+  return Math.round(Number(((total / qtdNaUnidadePedida) * 10000).toFixed(4))) / 10000;
 }
 
 /**

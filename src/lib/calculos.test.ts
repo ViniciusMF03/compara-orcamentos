@@ -214,7 +214,8 @@ describe("comparativo por item", () => {
 
 describe("preço por unidade pedida", () => {
   it("saco de 40 kg vs 20 kg: R$/kg", () => {
-    expect(precoPorUnidadePedida(itens[9], design.itens[9])).toBe(1.18);
+    expect(precoPorUnidadePedida(itens[9], design.itens[9])).toBe(1.175);
+    expect(precoPorUnidadePedida(itens[6], design.itens[6])).toBe(0.1192);
     expect(precoPorUnidadePedida(itens[9], loja.itens[9])).toBe(1.3);
   });
 

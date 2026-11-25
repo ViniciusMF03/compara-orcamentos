@@ -10,6 +10,14 @@ export function formatarMoeda(v: number | null | undefined): string {
   return moeda.format(v).replace(/ /g, " ");
 }
 
+const moedaUnitaria = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 4 });
+
+/** Preço por unidade, com até 4 casas: R$ 0,1192 */
+export function formatarMoedaUnitaria(v: number | null | undefined): string {
+  if (v === null || v === undefined || Number.isNaN(v)) return "—";
+  return moedaUnitaria.format(v).replace(/ /g, " ");
+}
+
 export function formatarNumero(v: number | null | undefined): string {
   if (v === null || v === undefined || Number.isNaN(v)) return "";
   return numero.format(v);
