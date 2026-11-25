@@ -21,9 +21,15 @@ async function obraIdPorNome(nome: string): Promise<string | null> {
   return obra.id;
 }
 
-export async function criarLista(dados: ListaCabecalhoForm): Promise<Resultado<{ id: string }>> {
+/** Cria a lista; se vierem itens (importados de foto/planilha/texto), cria junto. */
+export async function criarLista(dados: ListaCabecalhoForm, itens: ItensListaForm["itens"] = []): Promise<Resultado<{ id: string }>> {
   const p = listaCabecalhoSchema.safeParse(dados);
   if (!p.success) return { ok: false, erro: primeiroErro(p.error) };
+  const pi = itensListaSchema.safeParse({ itens });
+  if (!pi.success) {
+    const idx = pi.error.issues[0]?.path[1];
+    return { ok: false, erro: `Item ${typeof idx === "number" ? idx + 1 : ""} importado: ${primeiroErro(pi.error)}` };
+  }
   try {
     const lista = await prisma.lista.create({
       data: {
@@ -31,6 +37,14 @@ export async function criarLista(dados: ListaCabecalhoForm): Promise<Resultado<{
         status: p.data.status,
         observacao: p.data.observacao || null,
         obraId: await obraIdPorNome(p.data.obraNome),
+        itens: {
+          create: pi.data.itens.map((it, i) => ({
+            ordem: i + 1,
+            descricao: it.descricao,
+            quantidade: parseNumeroBR(it.quantidade)!,
+            unidade: it.unidade,
+          })),
+        },
       },
     });
     revalidatePath("/");

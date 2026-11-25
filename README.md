@@ -278,6 +278,8 @@ npm test
 - **Imprimir/PDF** usa a impressão do navegador com CSS próprio (A4 paisagem, sem menus, tabela completa mesmo no celular).
 - **WhatsApp**: copia o resumo para a área de transferência; se o navegador bloquear, abre `wa.me` com o texto.
 - **shadcn/ui**: os componentes usados (Button, Input, Card, Badge, AlertDialog) estão em `src/components/ui`, no mesmo formato que o CLI do shadcn gera (`components.json` incluído para adicionar outros com `npx shadcn add`).
+- **Importar itens na "Nova lista"**: além de digitar, a lista pode nascer de uma **foto/PDF** (lida pelo Claude, modelo `claude-opus-5-5` com saída estruturada), de uma **planilha .xlsx/CSV** (colunas de descrição, quantidade e unidade em qualquer ordem; coluna de nº do item é ignorada) ou de **texto colado**. Os itens aparecem numa prévia editável e são criados junto com a lista. Fotos de celular são reduzidas no navegador (lado maior 2000 px) antes do envio; limite de 8 MB por arquivo.
+- **Chave da API**: a leitura de fotos precisa de `ANTHROPIC_API_KEY` no `.env` (ver `.env.example`); sem ela, a tela mostra como configurar e o resto do app funciona. A requisição usa o *fallback* do servidor (`fallbacks: "default"`): se o modelo recusar por política, a API tenta em um modelo alternativo.
 - **Rotas de criação**: `/listas/nova` e `/orcamentos/novo?lista=<id>`; a edição fica em `/listas/[id]` e `/orcamentos/[id]`, como pedido.
 
 ---

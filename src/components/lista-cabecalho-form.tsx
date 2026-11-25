@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ImportarItens, type ItemImportado } from "@/components/importar-itens";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -29,6 +31,7 @@ export function ListaCabecalhoFormulario({
     defaultValues: valores ?? { nome: "", obraNome: "", status: "ABERTA", observacao: "" },
   });
   const { errors, isSubmitting, isDirty } = form.formState;
+  const [importados, setImportados] = useState<ItemImportado[]>([]);
 
   async function enviar(dados: ListaCabecalhoForm) {
     if (listaId) {
@@ -38,9 +41,9 @@ export function ListaCabecalhoFormulario({
       form.reset(dados);
       router.refresh();
     } else {
-      const r = await criarLista(dados);
+      const r = await criarLista(dados, importados);
       if (!r.ok) return toast.error(r.erro);
-      toast.success("Lista criada. Agora adicione os itens.");
+      toast.success(importados.length ? `Lista criada com ${importados.length} itens.` : "Lista criada. Agora adicione os itens.");
       router.push(`/listas/${r.dados!.id}`);
     }
   }
@@ -83,9 +86,18 @@ export function ListaCabecalhoFormulario({
         <Label htmlFor="observacao">Observação</Label>
         <Textarea id="observacao" rows={2} className="min-h-0" {...form.register("observacao")} />
       </div>
+      {!listaId && (
+        <div className="border-t pt-4 sm:col-span-6">
+          <ImportarItens itens={importados} onChange={setImportados} />
+        </div>
+      )}
       <div className="flex flex-wrap gap-2 sm:col-span-6">
         <Button type="submit" disabled={isSubmitting || (!!listaId && !isDirty)}>
-          {listaId ? "Salvar dados da lista" : "Criar lista"}
+          {listaId
+            ? "Salvar dados da lista"
+            : importados.length
+              ? `Criar lista com ${importados.length} ${importados.length === 1 ? "item" : "itens"}`
+              : "Criar lista"}
         </Button>
         {listaId && (
           <Confirmar

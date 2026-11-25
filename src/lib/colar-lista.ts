@@ -4,7 +4,7 @@
  */
 import { parseNumeroBR } from "./formato";
 
-export const UNIDADES = ["un", "pç", "kg", "m", "m²", "rl", "sc", "cx", "pct", "l", "bd"];
+export const UNIDADES = ["un", "pç", "kg", "m", "m²", "m³", "rl", "sc", "cx", "pct", "l", "bd"];
 
 /** palavra (minúscula, sem ponto final) → unidade */
 const MAPA_UNIDADES: Record<string, string> = {};
@@ -16,12 +16,21 @@ mapear("pç", ["pç", "pc", "pcs", "pçs", "peça", "peças", "peca", "pecas"]);
 mapear("kg", ["kg", "kgs", "quilo", "quilos", "kilo", "kilos", "quilograma", "quilogramas"]);
 mapear("m", ["m", "mt", "mts", "metro", "metros"]);
 mapear("m²", ["m²", "m2", "metro²", "metros²"]);
-mapear("rl", ["rl", "rolo", "rolos"]);
+mapear("m³", ["m³", "m3", "metro³", "metros³"]);
+mapear("rl",["rl", "rolo", "rolos"]);
 mapear("sc", ["sc", "saco", "sacos"]);
 mapear("cx", ["cx", "caixa", "caixas"]);
 mapear("pct", ["pct", "pcts", "pacote", "pacotes"]);
 mapear("l", ["l", "lt", "lts", "litro", "litros"]);
 mapear("bd", ["bd", "balde", "baldes"]);
+
+/** Unidade reconhecida em uma palavra ("quilos" → "kg"), ou null. */
+export function unidadeDe(palavra: string): string | null {
+  const p = palavra.trim().toLowerCase().replace(/\.$/, "");
+  if (/^metros?\s+quadrados?$/.test(p)) return "m²";
+  if (/^metros?\s+c[úu]bicos?$/.test(p)) return "m³";
+  return MAPA_UNIDADES[p] ?? null;
+}
 
 export interface ItemColado {
   quantidade: number;
@@ -58,7 +67,7 @@ export function parseLinha(linhaOriginal: string): ItemColado | null {
     unidade = "m²";
     resto = resto.slice(mM2[0].length);
   } else {
-    const mUn = resto.match(/^([a-zA-ZÀ-ÿ]+[²2]?)\.?(?=\s|$)\s*/);
+    const mUn = resto.match(/^([a-zA-ZÀ-ÿ]+[²³23]?)\.?(?=\s|$)\s*/);
     if (mUn) {
       const u = MAPA_UNIDADES[mUn[1].toLowerCase()];
       if (u) {
