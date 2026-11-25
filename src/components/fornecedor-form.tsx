@@ -23,7 +23,9 @@ export function FornecedorFormulario({
   compacto = false,
   onSalvo,
   onCancelar,
+  nOrcamentos = 0,
 }: {
+  nOrcamentos?: number;
   valores?: FornecedorForm;
   compacto?: boolean;
   onSalvo?: (f: { id: string; nome: string }) => void;
@@ -102,7 +104,15 @@ export function FornecedorFormulario({
           </Button>
         )}
         {editando && (
-          <Confirmar titulo="Apagar fornecedor?" descricao={`"${valores!.nome}" será apagado. Isso não pode ser desfeito.`} onConfirmar={apagar}>
+          <Confirmar
+            titulo="Apagar fornecedor?"
+            descricao={
+              nOrcamentos
+                ? `"${valores!.nome}" tem ${nOrcamentos} orçamento(s) lançado(s) e só pode ser apagado depois que eles forem apagados.`
+                : `"${valores!.nome}" será apagado. Isso não pode ser desfeito.`
+            }
+            onConfirmar={apagar}
+          >
             <Button type="button" variant="ghost" className="ml-auto text-destructive">
               <Trash2 /> Apagar
             </Button>

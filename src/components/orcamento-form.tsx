@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch, type UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -118,7 +119,8 @@ export function OrcamentoFormulario({
               compacto
               onCancelar={fornecedores.length ? () => setNovoFornecedor(false) : undefined}
               onSalvo={(f) => {
-                setFornecedores((l) => [...l, f].sort((a, b) => a.nome.localeCompare(b.nome)));
+                // a <option> precisa existir no DOM antes de selecionar
+                flushSync(() => setFornecedores((l) => [...l, f].sort((a, b) => a.nome.localeCompare(b.nome))));
                 form.setValue("fornecedorId", f.id, { shouldValidate: true, shouldDirty: true });
                 setNovoFornecedor(false);
               }}

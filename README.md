@@ -258,7 +258,27 @@ npm test
 
 ## 📝 Decisões tomadas
 
-_(O Claude anota aqui as escolhas feitas durante o desenvolvimento.)_
+- **Versões fixadas**: Next.js 15.5, React 19, Prisma 6.19, Tailwind 4, Zod 3, Vitest 3. São versões estáveis e conhecidas; o Prisma 7/8 muda bastante a configuração e pode ser atualizado depois.
+- **`.env` automático**: o `npm install` cria o `.env` a partir do `.env.example` (script `scripts/setup-env.mjs`), então os passos de "Como rodar" funcionam sem configuração manual. O `.env` não vai para o Git.
+- **Enums como texto**: `Lista.status` e `ItemCotado.conferencia` são `String` no banco e validados no app (Zod + tipos TS). Assim o mesmo schema funciona em SQLite e PostgreSQL sem migração especial.
+- **Campos extras no modelo**:
+  - `ItemCotado.qtdEquivalente`: quanto o item cotado rende na unidade pedida (ex.: 1 sc = 40 kg → 40). É o que permite calcular o **preço por unidade pedida** (R$/kg) quando a embalagem é diferente.
+  - `Orcamento.totalOriginal`: o total impresso no papel, guardado para a conferência de digitação.
+  - `Orcamento.criadoEm`: ordem das colunas no comparativo.
+  - `Obra.nome` é único: na lista, a obra é digitada (com sugestões) e criada automaticamente se não existir. Não há tela própria de obras.
+- **Unidades**: lista fixa de sugestões (`un`, `pç`, `kg`, `m`, `m²`, `rl`, `sc`, `cx`, `pct`, `l`, `bd`) num campo com autocompletar; o usuário pode digitar outra unidade. Fica em `src/lib/colar-lista.ts`.
+- **Dinheiro**: valores ficam como `Decimal` no banco e viram `number` nas telas. Cada `totalItem` é arredondado a centavos e as somas são feitas sobre os valores arredondados (igual a uma calculadora). Preço por unidade usa até 4 casas (R$ 0,1192/un).
+- **Datas**: guardadas ao meio-dia UTC para o dia não "pular" por causa do fuso horário.
+- **Melhor combinação**: testa todos os subconjuntos de orçamentos até 12; acima disso usa uma heurística gulosa (e avisa na tela). Frete e desconto de um orçamento só contam se pelo menos um item for comprado nele. Em empate de custo, prefere a combinação com menos fornecedores.
+- **"Melhor total" na tela inicial** = custo da melhor combinação.
+- **Conferência automática**: ao lançar, se a quantidade ou unidade cotada for diferente da pedida, o item vira `CONFIRMAR` sozinho, até o usuário clicar em um dos botões de conferência (aí vale a escolha dele). Itens já salvos contam como conferidos.
+- **Orçamento parcial**: cada linha começa como "cotado"; o usuário preenche o valor ou marca "não cotado". Sem valor, o formulário não deixa salvar.
+- **Fornecedor com orçamentos não pode ser apagado** (o banco usa `Restrict`); a tela explica e pede para apagar os orçamentos antes. Apagar lista apaga itens e orçamentos (cascade), com confirmação.
+- **Excel** gerado no servidor com `exceljs` (rota `/listas/[id]/comparativo/excel`): planilha "Comparativo" (mais barato em verde, observações como comentário da célula) e "Melhor compra".
+- **Imprimir/PDF** usa a impressão do navegador com CSS próprio (A4 paisagem, sem menus, tabela completa mesmo no celular).
+- **WhatsApp**: copia o resumo para a área de transferência; se o navegador bloquear, abre `wa.me` com o texto.
+- **shadcn/ui**: os componentes usados (Button, Input, Card, Badge, AlertDialog) estão em `src/components/ui`, no mesmo formato que o CLI do shadcn gera (`components.json` incluído para adicionar outros com `npx shadcn add`).
+- **Rotas de criação**: `/listas/nova` e `/orcamentos/novo?lista=<id>`; a edição fica em `/listas/[id]` e `/orcamentos/[id]`, como pedido.
 
 ---
 

@@ -91,7 +91,7 @@ export default async function OrcamentosDaLista({ params }: { params: Promise<{ 
                         <Badge variant="success">Cotou tudo</Badge>
                       ) : (
                         <Badge variant="secondary">
-                          Faltam {faltando.length} {faltando.length === 1 ? "item" : "itens"}
+                          {faltando.length === 1 ? "Falta 1 item" : `Faltam ${faltando.length} itens`}
                         </Badge>
                       )}
                       {divergentes > 0 && <Badge variant="danger">⚠ {divergentes} divergente{divergentes > 1 && "s"}</Badge>}

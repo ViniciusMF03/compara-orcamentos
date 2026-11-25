@@ -1,0 +1,15 @@
+{
+  "name": "Compara Orçamentos",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": { "label": "App", "onAutoForward": "openBrowser" }
+  },
+  "postCreateCommand": "npm install && npx prisma migrate deploy && npx prisma db seed",
+  "postAttachCommand": "npm run dev",
+  "customizations": {
+    "vscode": {
+      "extensions": ["Prisma.prisma", "bradlc.vscode-tailwindcss", "vitest.explorer"]
+    }
+  }
+}

@@ -34,6 +34,7 @@ export default async function Fornecedor({ params }: { params: Promise<{ id: str
       <Card>
         <CardContent className="pt-4">
           <FornecedorFormulario
+            nOrcamentos={f.orcamentos.length}
             valores={{
               id: f.id,
               nome: f.nome,
